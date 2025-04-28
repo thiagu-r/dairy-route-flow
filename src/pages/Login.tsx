@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login, isAuthenticated } = useAuth();
@@ -22,7 +22,7 @@ export default function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    if (!username || !password) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -33,11 +33,11 @@ export default function Login() {
     
     try {
       setIsLoading(true);
-      await login(email, password);
+      await login(username, password);
     } catch (error) {
       toast({
         title: "Login Failed",
-        description: "Invalid email or password",
+        description: "Invalid username or password",
         variant: "destructive",
       });
     } finally {
@@ -55,13 +55,13 @@ export default function Login() {
         
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="username">Username</Label>
             <Input
-              id="email"
-              type="email"
-              placeholder="your.email@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="username"
+              type="text"
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               disabled={isLoading}
               className="w-full"
             />

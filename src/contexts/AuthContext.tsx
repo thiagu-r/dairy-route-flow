@@ -6,7 +6,7 @@ import axios from 'axios';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
   hasRole: (roles: UserRole | UserRole[]) => boolean;
@@ -14,8 +14,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// API base URL would be configured in a real app
-const API_URL = "http://localhost:8000/api";
+const API_URL = "https://bharatdairy.pythonanywhere.com/apiapp";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -24,14 +23,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Check if user is already logged in
     const storedUser = localStorage.getItem('user');
-    const storedToken = localStorage.getItem('token');
+    const storedToken = localStorage.getItem('access_token');
     
     if (storedUser && storedToken) {
       const parsedUser = JSON.parse(storedUser);
-      setUser({
-        ...parsedUser,
-        token: storedToken
-      });
+      setUser(parsedUser);
       
       // Configure axios defaults
       axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
@@ -40,29 +36,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     try {
       setLoading(true);
       
-      // In a real app, this would be a call to your backend API
       const response = await axios.post(`${API_URL}/auth/login/`, {
-        email,
+        username,
         password
       });
       
-      const { user, token } = response.data;
+      const { user, access, refresh } = response.data;
       
-      // Store user and token
+      // Store tokens and user data
+      localStorage.setItem('access_token', access);
+      localStorage.setItem('refresh_token', refresh);
       localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('token', token);
       
       // Configure axios defaults for subsequent requests
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      axios.defaults.headers.common['Authorization'] = `Bearer ${access}`;
       
-      setUser({
-        ...user,
-        token
-      });
+      setUser(user);
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -72,9 +65,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    // Clear user data and token
     localStorage.removeItem('user');
-    localStorage.removeItem('token');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
     delete axios.defaults.headers.common['Authorization'];
     setUser(null);
   };
@@ -83,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) return false;
     
     if (Array.isArray(roles)) {
-      return roles.includes(user.role);
+      return roles.includes(user.role as UserRole);
     }
     
     return user.role === roles;

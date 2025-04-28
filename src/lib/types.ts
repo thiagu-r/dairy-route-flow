@@ -1,4 +1,3 @@
-
 // Type definitions for the Dairy Factory Management System
 
 // User roles
@@ -178,4 +177,14 @@ export interface DashboardStats {
     sales: number;
     returns: number;
   }>;
+}
+
+// Update User interface to match backend response
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  role: string;
 }
