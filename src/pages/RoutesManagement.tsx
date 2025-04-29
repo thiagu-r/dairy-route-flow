@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Plus, Edit, Trash2, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -198,80 +198,80 @@ export default function Routes() {
             <h1 className="text-2xl font-bold mb-1">Routes Management</h1>
             <p className="text-gray-500">Manage delivery route areas</p>
           </div>
-          <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-            <DialogTrigger asChild>
-              <Button 
-                className="bg-blue-700 hover:bg-blue-800"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setOpenDialog(true);
-                }}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Route
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{editingRoute ? 'Edit Route' : 'Add New Route'}</DialogTitle>
-                <DialogDescription>
-                  {editingRoute 
-                    ? 'Update the route details below.' 
-                    : 'Create a new route area for delivery planning.'}
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Route Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter route name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="code"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Route Code</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter route code (e.g., KKDI)" {...field} maxLength={4} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <DialogFooter>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => {
-                      setOpenDialog(false);
-                      setEditingRoute(null);
-                      form.reset();
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    className="bg-blue-700 hover:bg-blue-800"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {editingRoute ? 'Update Route' : 'Add Route'}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <Button 
+            className="bg-blue-700 hover:bg-blue-800"
+            onClick={() => {
+              setEditingRoute(null);
+              form.reset();
+              setOpenDialog(true);
+            }}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Route
+          </Button>
         </div>
+        
+        <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{editingRoute ? 'Edit Route' : 'Add New Route'}</DialogTitle>
+              <DialogDescription>
+                {editingRoute 
+                  ? 'Update the route details below.' 
+                  : 'Create a new route area for delivery planning.'}
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Route Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter route name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="code"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Route Code</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter route code (e.g., KKDI)" {...field} maxLength={4} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => {
+                    setOpenDialog(false);
+                    setEditingRoute(null);
+                    form.reset();
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  className="bg-blue-700 hover:bg-blue-800"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {editingRoute ? 'Update Route' : 'Add Route'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
         
         <Card>
           <CardHeader>
