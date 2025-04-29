@@ -8,6 +8,9 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const [showDropdown, setShowDropdown] = useState(false);
   
+  // Create a display name by combining first and last name
+  const displayName = user ? `${user.first_name} ${user.last_name}` : '';
+  
   return (
     <header className="bg-blue-700 text-white shadow-md">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
@@ -25,7 +28,7 @@ export default function Navbar() {
             <div className="bg-blue-800 p-2 rounded-full">
               <User className="h-5 w-5" />
             </div>
-            <span>{user?.name}</span>
+            <span>{displayName}</span>
           </button>
           
           {showDropdown && (

@@ -7,6 +7,9 @@ import { Link } from 'react-router-dom';
 export default function Unauthorized() {
   const { user } = useAuth();
   
+  // Create a display name by combining first and last name
+  const displayName = user ? `${user.first_name} ${user.last_name}` : '';
+  
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
       <div className="text-center p-8 bg-white rounded-lg shadow-md max-w-md">
@@ -27,7 +30,7 @@ export default function Unauthorized() {
           </Button>
           {user && (
             <p className="text-sm text-gray-500 mt-2">
-              You are signed in as: {user.name} ({user.role})
+              You are signed in as: {displayName} ({user.role})
             </p>
           )}
         </div>
