@@ -201,7 +201,14 @@ export default function Routes() {
           </div>
           <Dialog open={openDialog} onOpenChange={setOpenDialog}>
             <DialogTrigger asChild>
-              <Button className="bg-blue-700 hover:bg-blue-800">
+              <Button 
+                className="bg-blue-700 hover:bg-blue-800"
+                type="button" 
+                onClick={(e) => {
+                  e.preventDefault(); // Prevent any default navigation
+                  setOpenDialog(true);
+                }}
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Route
               </Button>
