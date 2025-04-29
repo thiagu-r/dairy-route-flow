@@ -1,4 +1,3 @@
-
 // Type definitions for the Dairy Factory Management System
 
 // User roles
@@ -24,8 +23,9 @@ export interface Product {
 
 // Route (Area)
 export interface Route {
-  id: string;
+  id: number;
   name: string;
+  code: string;
 }
 
 // Seller (Vendor)

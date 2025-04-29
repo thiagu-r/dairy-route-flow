@@ -6,95 +6,193 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { Plus, Edit, Trash2, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { Route as RouteType } from '@/lib/types';
+import axios from 'axios';
+import { useAuth } from '@/contexts/AuthContext';
 
-// Mock data
-const mockRoutes: RouteType[] = [
-  { id: '1', name: 'North Area' },
-  { id: '2', name: 'South Area' },
-  { id: '3', name: 'East Area' },
-  { id: '4', name: 'West Area' },
-  { id: '5', name: 'Central Area' },
-];
+const API_URL = "https://bharatdairy.pythonanywhere.com/apiapp";
+
+interface RouteFormData {
+  name: string;
+  code: string;
+}
 
 export default function Routes() {
   const [routes, setRoutes] = useState<RouteType[]>([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingRoute, setEditingRoute] = useState<RouteType | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
   
-  const form = useForm<{ name: string }>({
+  const form = useForm<RouteFormData>({
     defaultValues: {
       name: '',
+      code: '',
     },
   });
   
-  useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setRoutes(mockRoutes);
+  const { user } = useAuth();
+  
+  const fetchRoutes = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('access_token');
+      
+      if (!token) {
+        toast({
+          title: "Authentication Error",
+          description: "You are not authenticated. Please login again.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      const response = await axios.get(`${API_URL}/routes/`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      setRoutes(response.data);
+    } catch (error) {
+      console.error('Error fetching routes:', error);
+      toast({
+        title: "Failed to fetch routes",
+        description: "There was a problem loading routes data.",
+        variant: "destructive",
+      });
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
+  };
+  
+  useEffect(() => {
+    fetchRoutes();
   }, []);
   
   useEffect(() => {
     if (editingRoute) {
       form.setValue('name', editingRoute.name);
+      form.setValue('code', editingRoute.code);
     } else {
       form.reset();
     }
   }, [editingRoute, form]);
   
-  const onSubmit = (data: { name: string }) => {
-    if (editingRoute) {
-      // Update existing route
-      setRoutes(prev => 
-        prev.map(route => 
-          route.id === editingRoute.id ? { ...route, name: data.name } : route
-        )
-      );
+  const onSubmit = async (data: RouteFormData) => {
+    setIsSubmitting(true);
+    try {
+      const token = localStorage.getItem('access_token');
       
+      if (!token) {
+        toast({
+          title: "Authentication Error",
+          description: "You are not authenticated. Please login again.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      if (editingRoute) {
+        // Update existing route
+        const response = await axios.put(`${API_URL}/routes/${editingRoute.id}/`, data, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        
+        // Update the routes array with the updated route
+        setRoutes(prev => 
+          prev.map(route => 
+            route.id === editingRoute.id ? response.data : route
+          )
+        );
+        
+        toast({
+          title: "Route updated",
+          description: `Route '${data.name}' has been updated successfully.`,
+        });
+      } else {
+        // Create new route
+        const response = await axios.post(`${API_URL}/routes/`, data, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        
+        // Add the new route to the routes array
+        setRoutes(prev => [...prev, response.data]);
+        
+        toast({
+          title: "Route created",
+          description: `Route '${data.name}' has been created successfully.`,
+        });
+      }
+      
+      setOpenDialog(false);
+      setEditingRoute(null);
+      form.reset();
+    } catch (error) {
+      console.error('Error submitting route:', error);
       toast({
-        title: "Route updated",
-        description: `Route '${data.name}' has been updated successfully.`,
+        title: "Operation failed",
+        description: "There was an error processing your request.",
+        variant: "destructive",
       });
-    } else {
-      // Create new route
-      const newRoute: RouteType = {
-        id: `${routes.length + 1}`, // In a real app, this would be generated by the backend
-        name: data.name,
-      };
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  const handleDelete = async (id: number) => {
+    try {
+      const token = localStorage.getItem('access_token');
       
-      setRoutes(prev => [...prev, newRoute]);
+      if (!token) {
+        toast({
+          title: "Authentication Error",
+          description: "You are not authenticated. Please login again.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      await axios.delete(`${API_URL}/routes/${id}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      setRoutes(prev => prev.filter(route => route.id !== id));
       
       toast({
-        title: "Route created",
-        description: `Route '${data.name}' has been created successfully.`,
+        title: "Route deleted",
+        description: "The route has been deleted successfully.",
+      });
+    } catch (error) {
+      console.error('Error deleting route:', error);
+      toast({
+        title: "Delete failed",
+        description: "There was an error deleting the route.",
+        variant: "destructive",
       });
     }
-    
-    setOpenDialog(false);
-    setEditingRoute(null);
-    form.reset();
   };
   
-  const handleDelete = (id: string) => {
-    setRoutes(prev => prev.filter(route => route.id !== id));
-    
-    toast({
-      title: "Route deleted",
-      description: "The route has been deleted successfully.",
-      variant: "destructive",
-    });
-  };
+  // Filter routes based on search term
+  const filteredRoutes = routes.filter(route => 
+    route.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    route.code.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   
   return (
-    <MainLayout requiredRoles={['admin']}>
+    <MainLayout requiredRoles={['admin', 'ADMIN']}>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
@@ -127,6 +225,20 @@ export default function Routes() {
                       <FormControl>
                         <Input placeholder="Enter route name" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="code"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Route Code</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter route code (e.g., KKDI)" {...field} maxLength={4} />
+                      </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -145,7 +257,9 @@ export default function Routes() {
                   <Button 
                     type="submit" 
                     className="bg-blue-700 hover:bg-blue-800"
+                    disabled={isSubmitting}
                   >
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     {editingRoute ? 'Update Route' : 'Add Route'}
                   </Button>
                 </DialogFooter>
@@ -160,13 +274,17 @@ export default function Routes() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="text-center py-6">Loading routes...</div>
+              <div className="text-center py-6 flex justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-700" />
+              </div>
             ) : (
               <>
                 <div className="flex items-center mb-4">
                   <Input
                     placeholder="Search routes..."
                     className="max-w-sm"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
                 
@@ -175,21 +293,23 @@ export default function Routes() {
                     <TableRow>
                       <TableHead>ID</TableHead>
                       <TableHead>Route Name</TableHead>
+                      <TableHead>Code</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {routes.length === 0 ? (
+                    {filteredRoutes.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={3} className="text-center py-6">
-                          No routes found. Create your first route to get started.
+                        <TableCell colSpan={4} className="text-center py-6">
+                          {searchTerm ? 'No routes found matching your search.' : 'No routes found. Create your first route to get started.'}
                         </TableCell>
                       </TableRow>
                     ) : (
-                      routes.map((route) => (
+                      filteredRoutes.map((route) => (
                         <TableRow key={route.id}>
                           <TableCell className="font-medium">{route.id}</TableCell>
                           <TableCell>{route.name}</TableCell>
+                          <TableCell>{route.code}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end space-x-2">
                               <Button

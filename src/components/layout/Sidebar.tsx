@@ -10,7 +10,7 @@ import {
   Package, 
   Settings, 
   BarChart2,
-  List,
+  Map,
   Tag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -55,7 +55,7 @@ export default function Sidebar() {
     // Admin links
     if (hasRole('admin')) {
       items.push(
-        { to: "/routes", icon: List, label: "Routes", visible: true },
+        { to: "/routes", icon: Map, label: "Routes Management", visible: true },
         { to: "/sellers", icon: Users, label: "Sellers", visible: true },
         { to: "/products", icon: Package, label: "Products", visible: true },
         { to: "/price-plans", icon: Tag, label: "Price Plans", visible: true },
