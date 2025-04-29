@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -192,7 +191,7 @@ export default function Routes() {
   );
   
   return (
-    <MainLayout requiredRoles={['admin', 'ADMIN']}>
+    <MainLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
@@ -203,9 +202,8 @@ export default function Routes() {
             <DialogTrigger asChild>
               <Button 
                 className="bg-blue-700 hover:bg-blue-800"
-                type="button" 
                 onClick={(e) => {
-                  e.preventDefault(); // Prevent any default navigation
+                  e.preventDefault();
                   setOpenDialog(true);
                 }}
               >
