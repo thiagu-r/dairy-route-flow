@@ -26,11 +26,11 @@ const mockSellers: Seller[] = [
 ];
 
 const mockRoutes: Route[] = [
-  { id: '1', name: 'North Area' },
-  { id: '2', name: 'South Area' },
-  { id: '3', name: 'East Area' },
-  { id: '4', name: 'West Area' },
-  { id: '5', name: 'Central Area' },
+  { id: 1, name: 'North Area', code: 'NRTH' },
+  { id: 2, name: 'South Area', code: 'SUTH' },
+  { id: 3, name: 'East Area', code: 'EAST' },
+  { id: 4, name: 'West Area', code: 'WEST' },
+  { id: 5, name: 'Central Area', code: 'CENT' },
 ];
 
 interface FormValues {
@@ -134,7 +134,7 @@ export default function Sellers() {
   
   // Get route name by id
   const getRouteName = (routeId: string) => {
-    const route = routes.find(r => r.id === routeId);
+    const route = routes.find(r => r.id.toString() === routeId);
     return route ? route.name : 'Unknown Route';
   };
   

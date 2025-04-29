@@ -1,3 +1,4 @@
+
 // Type definitions for the Dairy Factory Management System
 
 // User roles
@@ -32,7 +33,7 @@ export interface Route {
 export interface Seller {
   id: string;
   name: string;
-  route_id: string;
+  route_id: string; // Keeping as string to match existing code
   is_public: boolean;
   balance?: number;
 }
