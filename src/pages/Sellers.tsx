@@ -129,7 +129,7 @@ export default function Sellers() {
   // Filter sellers based on search term
   const filteredSellers = sellers.filter(seller => 
     seller.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    routes.find(route => route.id === seller.route_id)?.name.toLowerCase().includes(searchTerm.toLowerCase())
+    getRouteName(seller.route_id).toLowerCase().includes(searchTerm.toLowerCase())
   );
   
   // Get route name by id
@@ -194,7 +194,7 @@ export default function Sellers() {
                         </FormControl>
                         <SelectContent>
                           {routes.map((route) => (
-                            <SelectItem key={route.id} value={route.id}>
+                            <SelectItem key={route.id} value={route.id.toString()}>
                               {route.name}
                             </SelectItem>
                           ))}
