@@ -1,12 +1,16 @@
+
 // Type definitions for the Dairy Factory Management System
 
 // User roles
-export type UserRole = 'admin' | 'sales' | 'delivery';
+export type UserRole = 'admin' | 'sales' | 'delivery' | 'ADMIN' | 'SALES' | 'DELIVERY';
 
 // User
 export interface User {
-  id: string;
-  name: string;
+  id: number;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
   role: UserRole;
   token?: string;
 }
@@ -177,14 +181,4 @@ export interface DashboardStats {
     sales: number;
     returns: number;
   }>;
-}
-
-// Update User interface to match backend response
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  role: string;
 }
