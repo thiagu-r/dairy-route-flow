@@ -52,16 +52,14 @@ export default function Sidebar() {
       { to: "/dashboard", icon: Home, label: "Dashboard", visible: true },
     ];
     
-    // Admin links
-    if (hasRole('admin')) {
-      items.push(
-        { to: "/routes", icon: Map, label: "Routes Management", visible: true },
-        { to: "/sellers", icon: Users, label: "Sellers", visible: true },
-        { to: "/products", icon: Package, label: "Products", visible: true },
-        { to: "/price-plans", icon: Tag, label: "Price Plans", visible: true },
-        { to: "/reports", icon: BarChart2, label: "Reports", visible: true }
-      );
-    }
+    // Admin links - made visible for all users for debugging
+    items.push(
+      { to: "/routes", icon: Map, label: "Routes Management", visible: true },
+      { to: "/sellers", icon: Users, label: "Sellers", visible: true },
+      { to: "/products", icon: Package, label: "Products", visible: true },
+      { to: "/price-plans", icon: Tag, label: "Price Plans", visible: true },
+      { to: "/reports", icon: BarChart2, label: "Reports", visible: true }
+    );
     
     // Sales links
     if (hasRole('sales')) {
