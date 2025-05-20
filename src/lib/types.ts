@@ -1,4 +1,3 @@
-
 // Type definitions for the Dairy Factory Management System
 
 // User roles
@@ -31,19 +30,35 @@ export interface Route {
 
 // Seller (Vendor)
 export interface Seller {
-  id: string;
-  name: string;
-  route_id: string; // Keeping as string to match existing code
-  is_public: boolean;
-  balance?: number;
+  id: number;
+  store_name: string;
+  first_name: string;
+  last_name: string;
+  mobileno: string;
+  store_address: string;
+  route: number;
+  route_name: string;
 }
 
-// Price Plan
+// Product Price (for Price Plan)
+export interface ProductPrice {
+  id: number;
+  product: number;
+  product_name: string;
+  price: string;
+}
+
+// Price Plan (API response)
 export interface PricePlan {
-  id: string;
-  seller_id: string | null; // null for general price plan
-  product_id: string;
-  price: number;
+  id: number;
+  name: string;
+  valid_from: string;
+  valid_to: string;
+  is_general: boolean;
+  seller: number | null;
+  seller_name?: string;
+  is_active: boolean;
+  product_prices: ProductPrice[];
 }
 
 // Sales Order

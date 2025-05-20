@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, UserRole } from '@/lib/types';
 import axios from 'axios';
@@ -74,12 +73,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const hasRole = (roles: UserRole | UserRole[]) => {
     if (!user) return false;
-    
+    const userRole = user.role.toLowerCase();
     if (Array.isArray(roles)) {
-      return roles.includes(user.role as UserRole);
+      return roles.map(r => r.toLowerCase()).includes(userRole);
     }
-    
-    return user.role === roles;
+    return userRole === (roles as string).toLowerCase();
   };
 
   const value = {

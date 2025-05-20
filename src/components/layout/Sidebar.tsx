@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -54,8 +53,10 @@ export default function Sidebar() {
     
     // Admin links - made visible for all users for debugging
     items.push(
-      { to: "/routes", icon: Map, label: "Routes Management", visible: true },
-      { to: "/sellers", icon: Users, label: "Sellers", visible: true },
+      { to: "/users", icon: Users, label: "Users", visible: hasRole('admin') || hasRole('ADMIN') },
+      { to: "/routes", icon: Map, label: "Routes Management", visible: hasRole('admin') || hasRole('ADMIN') },
+      { to: "/sellers", icon: Users, label: "Sellers", visible: hasRole('admin') || hasRole('ADMIN') },
+      { to: "/categories", icon: Map, label: "Categories", visible: hasRole('admin') || hasRole('ADMIN') },
       { to: "/products", icon: Package, label: "Products", visible: true },
       { to: "/price-plans", icon: Tag, label: "Price Plans", visible: true },
       { to: "/reports", icon: BarChart2, label: "Reports", visible: true }
@@ -92,7 +93,7 @@ export default function Sidebar() {
       collapsed ? "w-20" : "w-60"
     )}>
       <div className="p-4 border-b flex justify-between items-center">
-        {!collapsed && <h2 className="text-xl font-bold text-blue-700">DFMS</h2>}
+        {!collapsed && <h2 className="text-xl font-bold text-blue-700">Bharat</h2>}
         <button 
           onClick={() => setCollapsed(!collapsed)}
           className="p-1 rounded-md text-gray-500 hover:bg-gray-100"

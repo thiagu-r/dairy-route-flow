@@ -16,7 +16,7 @@ export default function Navbar() {
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <div>
           <Link to="/dashboard" className="text-xl font-bold">
-            Dairy Factory Management System
+            Bharat Dairy
           </Link>
         </div>
         
