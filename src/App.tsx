@@ -18,6 +18,7 @@ import Index from "./pages/Index";
 import Categories from "./pages/Categories";
 import Users from "./pages/Users";
 import SalesOrders from "./pages/SalesOrders";
+import PurchaseOrders from "./pages/PurchaseOrders";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/price-plans" element={<PricePlans />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/sales-orders" element={<SalesOrders />} />
+            <Route path="/purchase-orders" element={<PurchaseOrders />} />
             
             {/* Redirects */}
             <Route path="/" element={<Index />} />

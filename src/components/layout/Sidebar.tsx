@@ -55,6 +55,7 @@ export default function Sidebar() {
     items.push(
       { to: "/users", icon: Users, label: "Users", visible: hasRole('admin') || hasRole('ADMIN') },
       { to: "/sales-orders", icon: ShoppingCart, label: "Sales Orders", visible: hasRole('admin') || hasRole('ADMIN') || hasRole('sales') },
+      { to: "/purchase-orders", icon: Package, label: "Purchase Orders", visible: hasRole('admin') || hasRole('ADMIN') || hasRole('delivery') },
       { to: "/routes", icon: Map, label: "Routes Management", visible: hasRole('admin') || hasRole('ADMIN') },
       { to: "/sellers", icon: Users, label: "Sellers", visible: hasRole('admin') || hasRole('ADMIN') },
       { to: "/categories", icon: Map, label: "Categories", visible: hasRole('admin') || hasRole('ADMIN') },

@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { useForm } from 'react-hook-form';
 import { useRef } from 'react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 
 interface ProductTemplate {
   code: string;
@@ -42,6 +43,8 @@ export default function PricePlans() {
   const [sellerLoading, setSellerLoading] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [expandedGeneralPlanId, setExpandedGeneralPlanId] = useState<number | null>(null);
+  const [expandedSellerPlanId, setExpandedSellerPlanId] = useState<number | null>(null);
 
   const form = useForm<FormValues>({
     defaultValues: {
@@ -318,34 +321,56 @@ export default function PricePlans() {
               filterPlans(generalPlans).length === 0 ? (
                 <Card><CardContent className="py-6 text-center">No general price plans found.</CardContent></Card>
               ) : (
-                filterPlans(generalPlans).map((plan) => (
-                  <Card key={plan.id} className="mb-6">
-                    <CardHeader>
-                      <CardTitle>{plan.name}</CardTitle>
-                      <div className="text-sm text-gray-500">
-                        Valid: {plan.valid_from} to {plan.valid_to} | {plan.is_active ? 'Active' : 'Inactive'}
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Product</TableHead>
-                            <TableHead>Price</TableHead>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead></TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Validity</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filterPlans(generalPlans).map((plan) => (
+                      <>
+                        <TableRow
+                          key={plan.id}
+                          className="cursor-pointer hover:bg-gray-50"
+                          onClick={() => setExpandedGeneralPlanId(expandedGeneralPlanId === plan.id ? null : plan.id)}
+                        >
+                          <TableCell className="w-8">
+                            {expandedGeneralPlanId === plan.id ? <ChevronDown /> : <ChevronRight />}
+                          </TableCell>
+                          <TableCell>{plan.name}</TableCell>
+                          <TableCell>{plan.valid_from} to {plan.valid_to}</TableCell>
+                          <TableCell>{plan.is_active ? 'Active' : 'Inactive'}</TableCell>
+                        </TableRow>
+                        {expandedGeneralPlanId === plan.id && (
+                          <TableRow key={plan.id + '-expanded'}>
+                            <TableCell colSpan={4} className="bg-gray-50">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead>Product</TableHead>
+                                    <TableHead>Price</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {plan.product_prices.map((pp) => (
+                                    <TableRow key={pp.id}>
+                                      <TableCell>{pp.product_name}</TableCell>
+                                      <TableCell>{pp.price}</TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            </TableCell>
                           </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {plan.product_prices.map((pp) => (
-                            <TableRow key={pp.id}>
-                              <TableCell>{pp.product_name}</TableCell>
-                              <TableCell>{pp.price}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </CardContent>
-                  </Card>
-                ))
+                        )}
+                      </>
+                    ))}
+                  </TableBody>
+                </Table>
               )
             )}
           </TabsContent>
@@ -356,34 +381,58 @@ export default function PricePlans() {
               filterPlans(sellerPlans).length === 0 ? (
                 <Card><CardContent className="py-6 text-center">No seller-specific price plans found.</CardContent></Card>
               ) : (
-                filterPlans(sellerPlans).map((plan) => (
-                  <Card key={plan.id} className="mb-6">
-                    <CardHeader>
-                      <CardTitle>{plan.name}</CardTitle>
-                      <div className="text-sm text-gray-500">
-                        Seller: {plan.seller_name || plan.seller} | Valid: {plan.valid_from} to {plan.valid_to} | {plan.is_active ? 'Active' : 'Inactive'}
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Product</TableHead>
-                            <TableHead>Price</TableHead>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead></TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Seller</TableHead>
+                      <TableHead>Validity</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filterPlans(sellerPlans).map((plan) => (
+                      <>
+                        <TableRow
+                          key={plan.id}
+                          className="cursor-pointer hover:bg-gray-50"
+                          onClick={() => setExpandedSellerPlanId(expandedSellerPlanId === plan.id ? null : plan.id)}
+                        >
+                          <TableCell className="w-8">
+                            {expandedSellerPlanId === plan.id ? <ChevronDown /> : <ChevronRight />}
+                          </TableCell>
+                          <TableCell>{plan.name}</TableCell>
+                          <TableCell>{plan.seller_name || plan.seller}</TableCell>
+                          <TableCell>{plan.valid_from} to {plan.valid_to}</TableCell>
+                          <TableCell>{plan.is_active ? 'Active' : 'Inactive'}</TableCell>
+                        </TableRow>
+                        {expandedSellerPlanId === plan.id && (
+                          <TableRow key={plan.id + '-expanded'}>
+                            <TableCell colSpan={5} className="bg-gray-50">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead>Product</TableHead>
+                                    <TableHead>Price</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {plan.product_prices.map((pp) => (
+                                    <TableRow key={pp.id}>
+                                      <TableCell>{pp.product_name}</TableCell>
+                                      <TableCell>{pp.price}</TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            </TableCell>
                           </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {plan.product_prices.map((pp) => (
-                            <TableRow key={pp.id}>
-                              <TableCell>{pp.product_name}</TableCell>
-                              <TableCell>{pp.price}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </CardContent>
-                  </Card>
-                ))
+                        )}
+                      </>
+                    ))}
+                  </TableBody>
+                </Table>
               )
             )}
           </TabsContent>
