@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useForm } from 'react-hook-form';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Edit2 } from 'lucide-react';
 
 interface User {
   id: number;
@@ -36,6 +36,13 @@ interface CreateUserForm {
   mobile_number: string;
 }
 
+interface EditUserForm {
+  first_name: string;
+  last_name: string;
+  role: string;
+  password: string;
+}
+
 export default function Users() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,6 +53,9 @@ export default function Users() {
   const [rolesLoading, setRolesLoading] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editUser, setEditUser] = useState<User | null>(null);
+  const [editShowPassword, setEditShowPassword] = useState(false);
 
   const form = useForm<CreateUserForm>({
     defaultValues: {
@@ -56,6 +66,15 @@ export default function Users() {
       role: '',
       password: '',
       mobile_number: '',
+    },
+  });
+
+  const editForm = useForm<EditUserForm>({
+    defaultValues: {
+      first_name: '',
+      last_name: '',
+      role: '',
+      password: '',
     },
   });
 
@@ -130,6 +149,43 @@ export default function Users() {
     }
   };
 
+  // Fetch roles for edit dialog
+  const handleEditDialogOpen = async (open: boolean, user?: User) => {
+    setEditDialogOpen(open);
+    if (open && roles.length === 0) {
+      setRolesLoading(true);
+      try {
+        const token = localStorage.getItem('access_token');
+        if (!token) return;
+        const res = await fetch('https://bharatdairy.pythonanywhere.com/apiapp/users/roles/', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error('Failed to fetch roles');
+        const data = await res.json();
+        setRoles(data);
+      } catch (e) {
+        toast({ title: 'Failed to fetch roles', variant: 'destructive' });
+      } finally {
+        setRolesLoading(false);
+      }
+    }
+    if (open && user) {
+      setEditUser(user);
+      editForm.reset({
+        first_name: user.first_name,
+        last_name: user.last_name,
+        role: user.role,
+        password: '',
+      });
+      setEditShowPassword(false);
+    }
+    if (!open) {
+      setEditUser(null);
+      editForm.reset();
+      setEditShowPassword(false);
+    }
+  };
+
   // Create user handler
   const handleFormSubmit = async (values: CreateUserForm) => {
     setFormSubmitting(true);
@@ -156,6 +212,46 @@ export default function Users() {
       fetchUsers();
     } catch (error) {
       toast({ title: 'Failed', description: 'Could not create user.', variant: 'destructive' });
+    } finally {
+      setFormSubmitting(false);
+    }
+  };
+
+  // Edit user handler
+  const handleEditFormSubmit = async (values: EditUserForm) => {
+    if (!editUser) return;
+    setFormSubmitting(true);
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        toast({ title: 'Authentication Error', description: 'You are not authenticated. Please login again.', variant: 'destructive' });
+        setFormSubmitting(false);
+        return;
+      }
+      // Only send password if provided
+      const payload: Record<string, unknown> = {
+        first_name: values.first_name,
+        last_name: values.last_name,
+        role: values.role,
+      };
+      if (values.password) payload.password = values.password;
+      const response = await fetch(`https://bharatdairy.pythonanywhere.com/apiapp/users/${editUser.id}/`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error('Failed to update user');
+      toast({ title: 'Success', description: 'User updated successfully.' });
+      setEditDialogOpen(false);
+      setEditUser(null);
+      editForm.reset();
+      setEditShowPassword(false);
+      fetchUsers();
+    } catch (error) {
+      toast({ title: 'Failed', description: 'Could not update user.', variant: 'destructive' });
     } finally {
       setFormSubmitting(false);
     }
@@ -289,12 +385,13 @@ export default function Users() {
                     <TableHead>Email</TableHead>
                     <TableHead>Mobile</TableHead>
                     <TableHead>Role</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredUsers.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center">
+                      <TableCell colSpan={6} className="text-center">
                         No users found.
                       </TableCell>
                     </TableRow>
@@ -306,6 +403,17 @@ export default function Users() {
                         <TableCell>{user.email}</TableCell>
                         <TableCell>{user.mobile_number || '-'}</TableCell>
                         <TableCell>{user.role}</TableCell>
+                        <TableCell>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="mr-2"
+                            onClick={() => handleEditDialogOpen(true, user)}
+                            title="Edit User"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))
                   )}
@@ -314,6 +422,69 @@ export default function Users() {
             )}
           </CardContent>
         </Card>
+
+        {/* Edit User Dialog */}
+        <Dialog open={editDialogOpen} onOpenChange={(open) => handleEditDialogOpen(open)}>
+          <DialogContent className="sm:max-w-[475px]">
+            <DialogHeader>
+              <DialogTitle>Edit User</DialogTitle>
+            </DialogHeader>
+            <Form {...editForm}>
+              <form onSubmit={editForm.handleSubmit(handleEditFormSubmit)} className="space-y-4">
+                <FormField name="first_name" control={editForm.control} render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>First Name</FormLabel>
+                    <FormControl><Input {...field} required /></FormControl>
+                  </FormItem>
+                )} />
+                <FormField name="last_name" control={editForm.control} render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Last Name</FormLabel>
+                    <FormControl><Input {...field} required /></FormControl>
+                  </FormItem>
+                )} />
+                <FormField name="role" control={editForm.control} render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <FormControl>
+                      <Select value={field.value} onValueChange={field.onChange} disabled={rolesLoading} required>
+                        <SelectTrigger><SelectValue placeholder="Select role" /></SelectTrigger>
+                        <SelectContent>
+                          {roles.map(role => (
+                            <SelectItem key={role.value} value={role.value}>{role.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                  </FormItem>
+                )} />
+                <FormField name="password" control={editForm.control} render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input type={editShowPassword ? 'text' : 'password'} {...field} placeholder="Leave blank to keep current password" />
+                        <button
+                          type="button"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                          tabIndex={-1}
+                          onClick={() => setEditShowPassword((v) => !v)}
+                          aria-label={editShowPassword ? 'Hide password' : 'Show password'}
+                        >
+                          {editShowPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
+                      </div>
+                    </FormControl>
+                  </FormItem>
+                )} />
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
+                  <Button type="submit" className="bg-blue-700 hover:bg-blue-800" disabled={formSubmitting}>{formSubmitting ? 'Saving...' : 'Save'}</Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
       </div>
     </MainLayout>
   );
