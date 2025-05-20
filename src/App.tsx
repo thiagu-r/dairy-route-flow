@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 import Index from "./pages/Index";
 import Categories from "./pages/Categories";
 import Users from "./pages/Users";
+import SalesOrders from "./pages/SalesOrders";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/products" element={<Products />} />
             <Route path="/price-plans" element={<PricePlans />} />
             <Route path="/categories" element={<Categories />} />
+            <Route path="/sales-orders" element={<SalesOrders />} />
             
             {/* Redirects */}
             <Route path="/" element={<Index />} />

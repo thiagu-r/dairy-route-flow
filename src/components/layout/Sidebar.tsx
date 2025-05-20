@@ -54,6 +54,7 @@ export default function Sidebar() {
     // Admin links - made visible for all users for debugging
     items.push(
       { to: "/users", icon: Users, label: "Users", visible: hasRole('admin') || hasRole('ADMIN') },
+      { to: "/sales-orders", icon: ShoppingCart, label: "Sales Orders", visible: hasRole('admin') || hasRole('ADMIN') || hasRole('sales') },
       { to: "/routes", icon: Map, label: "Routes Management", visible: hasRole('admin') || hasRole('ADMIN') },
       { to: "/sellers", icon: Users, label: "Sellers", visible: hasRole('admin') || hasRole('ADMIN') },
       { to: "/categories", icon: Map, label: "Categories", visible: hasRole('admin') || hasRole('ADMIN') },
