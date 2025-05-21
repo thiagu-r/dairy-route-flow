@@ -56,6 +56,10 @@ export default function Sidebar() {
       { to: "/users", icon: Users, label: "Users", visible: hasRole('admin') || hasRole('ADMIN') },
       { to: "/sales-orders", icon: ShoppingCart, label: "Sales Orders", visible: hasRole('admin') || hasRole('ADMIN') || hasRole('sales') },
       { to: "/purchase-orders", icon: Package, label: "Purchase Orders", visible: hasRole('admin') || hasRole('ADMIN') || hasRole('delivery') },
+      { to: "/loading", icon: Truck, label: "Loading Orders", visible: hasRole('admin') || hasRole('ADMIN') || hasRole('delivery') },
+      { to: "/delivery-orders", icon: Truck, label: "Delivery Orders", visible: hasRole('admin') || hasRole('ADMIN') || hasRole('delivery') },
+      { to: "/returns", icon: ShoppingCart, label: "Returns", visible: hasRole('admin') || hasRole('ADMIN') || hasRole('delivery') },
+      { to: "/denomination", icon: ShoppingCart, label: "Cash Handover", visible: hasRole('admin') || hasRole('ADMIN') || hasRole('delivery') },
       { to: "/routes", icon: Map, label: "Routes Management", visible: hasRole('admin') || hasRole('ADMIN') },
       { to: "/sellers", icon: Users, label: "Sellers", visible: hasRole('admin') || hasRole('ADMIN') },
       { to: "/categories", icon: Map, label: "Categories", visible: hasRole('admin') || hasRole('ADMIN') },
@@ -67,6 +71,7 @@ export default function Sidebar() {
     // Sales links
     if (hasRole('sales')) {
       items.push(
+        { to: "/sales-dashboard", icon: ShoppingCart, label: "Sales Dashboard", visible: true },
         { to: "/sales-orders", icon: ShoppingCart, label: "Sales Orders", visible: true }
       );
     }
@@ -76,7 +81,7 @@ export default function Sidebar() {
       items.push(
         { to: "/purchase-orders", icon: Package, label: "Purchase Orders", visible: true },
         { to: "/loading", icon: Truck, label: "Loading Orders", visible: true },
-        { to: "/delivery", icon: Truck, label: "Delivery Orders", visible: true },
+        { to: "/delivery-orders", icon: Truck, label: "Delivery Orders", visible: true },
         { to: "/returns", icon: ShoppingCart, label: "Returns", visible: true },
         { to: "/broken", icon: Package, label: "Broken Items", visible: true },
         { to: "/denomination", icon: ShoppingCart, label: "Cash Handover", visible: true }
