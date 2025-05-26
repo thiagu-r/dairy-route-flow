@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { ChevronDown, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import CreatePurchaseOrderModal from './CreatePurchaseOrderModal';
 
 interface PurchaseOrderItem {
   id: number;
@@ -32,6 +34,8 @@ export default function PurchaseOrders() {
   const [loading, setLoading] = useState(true);
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
   const { toast } = useToast();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingOrder, setEditingOrder] = useState<PurchaseOrder | null>(null);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -65,6 +69,12 @@ export default function PurchaseOrders() {
     setExpandedOrderId(prev => (prev === orderId ? null : orderId));
   };
 
+  const handleModalSuccess = () => {
+    setModalOpen(false);
+    setEditingOrder(null);
+    fetchOrders();
+  };
+
   return (
     <MainLayout requiredRoles={['admin', 'delivery']}>
       <div className="space-y-6">
@@ -73,7 +83,11 @@ export default function PurchaseOrders() {
             <h1 className="text-2xl font-bold mb-1">Purchase Orders</h1>
             <p className="text-gray-500">View all purchase orders</p>
           </div>
+          <Button onClick={() => { setModalOpen(true); setEditingOrder(null); }} className="bg-blue-700 hover:bg-blue-800 text-white">
+            + Create Purchase Order
+          </Button>
         </div>
+        <CreatePurchaseOrderModal open={modalOpen} onClose={() => { setModalOpen(false); setEditingOrder(null); }} onSuccess={handleModalSuccess} editingOrder={editingOrder} />
         <Card>
           <CardContent className="p-0">
             {loading ? (
@@ -89,6 +103,7 @@ export default function PurchaseOrders() {
                     <TableHead>Route</TableHead>
                     <TableHead>Delivery Date</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -106,6 +121,11 @@ export default function PurchaseOrders() {
                         <TableCell>{order.route}</TableCell>
                         <TableCell>{order.delivery_date}</TableCell>
                         <TableCell>{order.status}</TableCell>
+                        <TableCell>
+                          <Button size="sm" variant="outline" onClick={e => { e.stopPropagation(); setEditingOrder(order); setModalOpen(true); }}>
+                            Edit
+                          </Button>
+                        </TableCell>
                       </TableRow>
                       {expandedOrderId === order.id && (
                         <TableRow key={order.id + '-expanded'}>

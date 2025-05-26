@@ -47,12 +47,9 @@ export default function Sidebar() {
   
   // Navigation items based on user role
   const getNavItems = () => {
-    const items = [
-      { to: "/dashboard", icon: Home, label: "Dashboard", visible: true },
-    ];
-    
-    // Admin links - made visible for all users for debugging
+    const items = [];
     items.push(
+      { to: "/dashboard", icon: Home, label: "Dashboard", visible: true },
       { to: "/users", icon: Users, label: "Users", visible: hasRole('admin') || hasRole('ADMIN') },
       { to: "/sales-orders", icon: ShoppingCart, label: "Sales Orders", visible: hasRole('admin') || hasRole('ADMIN') || hasRole('sales') },
       { to: "/purchase-orders", icon: Package, label: "Purchase Orders", visible: hasRole('admin') || hasRole('ADMIN') || hasRole('delivery') },
@@ -65,7 +62,10 @@ export default function Sidebar() {
       { to: "/categories", icon: Map, label: "Categories", visible: hasRole('admin') || hasRole('ADMIN') },
       { to: "/products", icon: Package, label: "Products", visible: true },
       { to: "/price-plans", icon: Tag, label: "Price Plans", visible: true },
-      { to: "/reports", icon: BarChart2, label: "Reports", visible: true }
+      { to: "/sales-report", icon: BarChart2, label: "Sales Report", visible: true },
+      { to: "/delivery-summary-report", icon: BarChart2, label: "Delivery Summary", visible: hasRole('admin') || hasRole('ADMIN') },
+      { to: "/distributors", icon: Users, label: "Distributors", visible: hasRole('admin') || hasRole('ADMIN') },
+      { to: "/delivery-teams", icon: Users, label: "Delivery Team", visible: hasRole('admin') || hasRole('ADMIN') },
     );
     
     // Sales links

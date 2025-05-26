@@ -22,6 +22,10 @@ import PurchaseOrders from "./pages/PurchaseOrders";
 import DeliveryOrders from "./pages/DeliveryOrders";
 import LoadingOrders from "./pages/LoadingOrders";
 import SalesDashboard from "./pages/SalesDashboard";
+import SalesReport from "./pages/SalesReport";
+import Distributors from './pages/Distributors';
+import DeliveryTeams from './pages/DeliveryTeams';
+import DeliverySummaryReport from './pages/DeliverySummaryReport';
 
 const queryClient = new QueryClient();
 
@@ -50,6 +54,10 @@ const App = () => (
             <Route path="/purchase-orders" element={<PurchaseOrders />} />
             <Route path="/loading" element={<LoadingOrders />} />
             <Route path="/delivery-orders" element={<DeliveryOrders />} />
+            <Route path="/sales-report" element={<SalesReport />} />
+            <Route path="/delivery-summary-report" element={<DeliverySummaryReport />} />
+            <Route path="/distributors" element={<Distributors />} />
+            <Route path="/delivery-teams" element={<DeliveryTeams />} />
             
             {/* Redirects */}
             <Route path="/" element={<Index />} />

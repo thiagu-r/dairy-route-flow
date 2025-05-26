@@ -7,6 +7,8 @@ import { useToast } from '@/components/ui/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { format } from 'date-fns';
+import { Trash2 } from 'lucide-react';
+import { Dialog as ConfirmDialog, DialogContent as ConfirmDialogContent, DialogHeader as ConfirmDialogHeader, DialogTitle as ConfirmDialogTitle, DialogFooter as ConfirmDialogFooter } from '@/components/ui/dialog';
 
 interface Route {
   id: number;
@@ -74,6 +76,7 @@ export default function SalesDashboard() {
   const [addProductQty, setAddProductQty] = useState('');
   const [addProductLoading, setAddProductLoading] = useState(false);
   const { toast } = useToast();
+  const [confirmRemove, setConfirmRemove] = useState<{ type: 'edit' | 'create', idx: number } | null>(null);
 
   // Fetch routes on mount
   useEffect(() => {
@@ -348,6 +351,27 @@ export default function SalesDashboard() {
     }
   };
 
+  // Remove product from editOrderItems
+  const handleRemoveEditItem = (idx: number) => {
+    setConfirmRemove({ type: 'edit', idx });
+  };
+
+  // Remove product from orderItems (create order)
+  const handleRemoveCreateItem = (idx: number) => {
+    setConfirmRemove({ type: 'create', idx });
+  };
+
+  // Confirm removal
+  const confirmRemoveProduct = () => {
+    if (!confirmRemove) return;
+    if (confirmRemove.type === 'edit') {
+      setEditOrderItems(items => items.filter((_, i) => i !== confirmRemove.idx));
+    } else {
+      setOrderItems(items => items.filter((_, i) => i !== confirmRemove.idx));
+    }
+    setConfirmRemove(null);
+  };
+
   return (
     <MainLayout requiredRoles={['admin', 'sales']}>
       <div className="space-y-6">
@@ -472,6 +496,7 @@ export default function SalesDashboard() {
                           <TableHead>Product</TableHead>
                           <TableHead>Quantity</TableHead>
                           <TableHead>Unit Price</TableHead>
+                          <TableHead>Remove</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -489,6 +514,11 @@ export default function SalesDashboard() {
                               />
                             </TableCell>
                             <TableCell>{item.unit_price}</TableCell>
+                            <TableCell>
+                              <Button variant="ghost" size="icon" onClick={() => handleRemoveEditItem(idx)} title="Remove">
+                                <Trash2 className="w-4 h-4 text-red-500" />
+                              </Button>
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -552,6 +582,7 @@ export default function SalesDashboard() {
                       <TableHead>Product</TableHead>
                       <TableHead>Unit Price</TableHead>
                       <TableHead>Quantity</TableHead>
+                      <TableHead>Remove</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -569,6 +600,11 @@ export default function SalesDashboard() {
                             className="w-24"
                           />
                         </TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="icon" onClick={() => handleRemoveCreateItem(idx)} title="Remove">
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -584,6 +620,18 @@ export default function SalesDashboard() {
             )}
           </DialogContent>
         </Dialog>
+        <ConfirmDialog open={!!confirmRemove} onOpenChange={open => !open && setConfirmRemove(null)}>
+          <ConfirmDialogContent>
+            <ConfirmDialogHeader>
+              <ConfirmDialogTitle>Remove Product</ConfirmDialogTitle>
+            </ConfirmDialogHeader>
+            <div>Are you sure you want to remove this product from the order?</div>
+            <ConfirmDialogFooter className="flex justify-end gap-2 mt-4">
+              <Button variant="outline" onClick={() => setConfirmRemove(null)}>Cancel</Button>
+              <Button variant="destructive" onClick={confirmRemoveProduct}>Remove</Button>
+            </ConfirmDialogFooter>
+          </ConfirmDialogContent>
+        </ConfirmDialog>
       </div>
     </MainLayout>
   );
