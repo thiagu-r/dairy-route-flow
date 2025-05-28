@@ -89,11 +89,19 @@ export default function AdminDashboard() {
       {/* Balance Aging Report */}
       <BalanceAgingReport />
 
-      {/* Product Movement Chart */}
-      <ProductMovementChart />
-
-      {/* Top Sellers */}
-      <TopSellers />
+      {/* Product Movement Chart & Top Sellers Chart Row */}
+      <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex-1 min-w-0">
+          <ProductMovementChart chartOnly />
+        </div>
+        <div className="flex-1 min-w-0">
+          <TopSellers chartOnly />
+        </div>
+      </div>
+      {/* Product Movement Table */}
+      <ProductMovementChart tableOnly />
+      {/* Top Sellers Table */}
+      <TopSellers tableOnly />
 
       {/* Route Performance */}
       <RoutePerformance />
