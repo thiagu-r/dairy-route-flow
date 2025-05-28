@@ -1,105 +1,102 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart2, ShoppingCart, Package, DollarSign } from 'lucide-react';
-import { DashboardStats } from '@/lib/types';
+import { ShoppingCart, Package, DollarSign } from 'lucide-react';
+// import { DashboardStats } from '@/lib/types';
 
-// In a real app, this would come from your API
-const mockDashboardStats: DashboardStats = {
-  totalSales: 45280,
-  totalReturns: 1250,
-  totalBreakages: 320,
-  cashCollected: 43710,
-  routeStats: [
-    { route_id: '1', route_name: 'North Area', sales: 15400, returns: 450 },
-    { route_id: '2', route_name: 'South Area', sales: 12300, returns: 320 },
-    { route_id: '3', route_name: 'East Area', sales: 8950, returns: 210 },
-    { route_id: '4', route_name: 'West Area', sales: 8630, returns: 270 },
-  ]
-};
+// Placeholder for Order Status Heatmap component
+import OrderStatusHeatmap from './OrderStatusHeatmap';
+import BalanceAgingReport from './BalanceAgingReport';
+import ProductMovementChart from './ProductMovementChart';
+import TopSellers from './TopSellers';
+import RoutePerformance from './RoutePerformance';
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [snapshot, setSnapshot] = useState<null | {
+    total_orders: number;
+    delivered_orders: number;
+    pending_orders: number;
+    total_sales: string;
+  }>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setStats(mockDashboardStats);
-      setLoading(false);
-    }, 1000);
+    const fetchSnapshot = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const token = localStorage.getItem('access_token');
+        const res = await fetch('https://bharatdairy.pythonanywhere.com/apiapp/admin/snapshot/', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error('Failed to fetch snapshot');
+        const data = await res.json();
+        setSnapshot(data);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to load snapshot');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSnapshot();
   }, []);
 
   if (loading) {
     return <div className="text-center p-6">Loading dashboard data...</div>;
   }
 
-  if (!stats) {
-    return <div className="text-center p-6">Failed to load dashboard data</div>;
+  if (error) {
+    return <div className="text-center p-6 text-red-500">{error}</div>;
+  }
+
+  if (!snapshot) {
+    return <div className="text-center p-6">No snapshot data available</div>;
   }
 
   return (
     <div className="space-y-6">
+      {/* Today's Snapshot */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
+          title="Total Orders" 
+          value={snapshot.total_orders.toString()} 
+          description="Total orders today"
+          icon={<ShoppingCart className="h-5 w-5 text-blue-600" />} 
+        />
+        <StatCard 
+          title="Delivered Orders" 
+          value={snapshot.delivered_orders.toString()} 
+          description="Orders delivered today"
+          icon={<Package className="h-5 w-5 text-green-600" />} 
+        />
+        <StatCard 
+          title="Pending Orders" 
+          value={snapshot.pending_orders.toString()} 
+          description="Orders pending delivery"
+          icon={<Package className="h-5 w-5 text-yellow-600" />} 
+        />
+        <StatCard 
           title="Total Sales" 
-          value={`$${stats.totalSales.toLocaleString()}`} 
-          description="Total value of sold products"
-          icon={<ShoppingCart className="h-5 w-5 text-blue-600" />}
-        />
-        <StatCard 
-          title="Returns" 
-          value={`$${stats.totalReturns.toLocaleString()}`} 
-          description="Value of returned products"
-          icon={<Package className="h-5 w-5 text-yellow-600" />}
-        />
-        <StatCard 
-          title="Breakages" 
-          value={`$${stats.totalBreakages.toLocaleString()}`} 
-          description="Value of broken inventory"
-          icon={<Package className="h-5 w-5 text-red-600" />}
-        />
-        <StatCard 
-          title="Cash Collected" 
-          value={`$${stats.cashCollected.toLocaleString()}`} 
-          description="Total cash handovers"
-          icon={<DollarSign className="h-5 w-5 text-green-600" />}
+          value={`₹${Number(snapshot.total_sales).toLocaleString()}`} 
+          description="Total sales value today"
+          icon={<DollarSign className="h-5 w-5 text-blue-600" />} 
         />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Route Performance</CardTitle>
-          <CardDescription>Sales and returns by route area</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {stats.routeStats.map((route) => (
-              <div key={route.route_id} className="flex justify-between items-center">
-                <div>
-                  <p className="font-medium">{route.route_name}</p>
-                  <div className="mt-1 flex items-center space-x-4">
-                    <div className="flex items-center text-sm text-gray-500">
-                      <ShoppingCart className="h-3.5 w-3.5 mr-1 text-blue-600" />
-                      <span>${route.sales.toLocaleString()}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-500">
-                      <Package className="h-3.5 w-3.5 mr-1 text-yellow-600" />
-                      <span>${route.returns.toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-gray-100 h-2 w-32 rounded-full">
-                  <div 
-                    className="bg-blue-600 h-2 rounded-full" 
-                    style={{ width: `${(route.sales / 20000) * 100}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Order Status Heatmap */}
+      <OrderStatusHeatmap />
+
+      {/* Balance Aging Report */}
+      <BalanceAgingReport />
+
+      {/* Product Movement Chart */}
+      <ProductMovementChart />
+
+      {/* Top Sellers */}
+      <TopSellers />
+
+      {/* Route Performance */}
+      <RoutePerformance />
     </div>
   );
 }
